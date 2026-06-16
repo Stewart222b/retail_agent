@@ -1,0 +1,192 @@
+[
+  {
+    "sku_id": "DRINK001",
+    "name": "零度可乐",
+    "aliases": ["零度", "无糖可乐", "健怡可乐", "可乐无糖"],
+    "category": "碳酸饮料",
+    "tags": ["无糖", "零卡", "热销", "含咖啡因"],
+    "price": 3.5,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "330ml"}
+  },
+  {
+    "sku_id": "DRINK002",
+    "name": "东方树叶 茉莉花茶",
+    "aliases": ["东方树叶", "茉莉茶", "东方树叶茉莉", "茉莉花茶"],
+    "category": "茶饮料",
+    "tags": ["无糖", "零卡", "热销"],
+    "price": 5.0,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "500ml"}
+  },
+  {
+    "sku_id": "DRINK003",
+    "name": "无糖苏打水",
+    "aliases": ["苏打水", "气泡水", "苏打"],
+    "category": "碳酸饮料",
+    "tags": ["无糖", "零卡"],
+    "price": 4.0,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "330ml"}
+  },
+  {
+    "sku_id": "DRINK004",
+    "name": "冰美式咖啡",
+    "aliases": ["冰美式", "美式", "美式咖啡"],
+    "category": "咖啡",
+    "tags": ["含咖啡因", "低卡", "热销"],
+    "price": 18.0,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "350ml"}
+  },
+  {
+    "sku_id": "DRINK005",
+    "name": "拿铁咖啡",
+    "aliases": ["拿铁", "latte"],
+    "category": "咖啡",
+    "tags": ["含咖啡因", "热销"],
+    "price": 22.0,
+    "in_stock": true,
+    "attributes": {"sugar": "3g", "volume": "350ml"}
+  },
+  {
+    "sku_id": "DRINK006",
+    "name": "燕麦拿铁",
+    "aliases": ["燕麦拿铁", "燕麦咖啡"],
+    "category": "咖啡",
+    "tags": ["低糖", "含咖啡因", "新品"],
+    "price": 26.0,
+    "in_stock": true,
+    "attributes": {"sugar": "4g", "volume": "350ml"}
+  },
+  {
+    "sku_id": "DRINK007",
+    "name": "纯牛奶",
+    "aliases": ["牛奶", "鲜牛奶"],
+    "category": "乳制品",
+    "tags": ["低糖", "适合儿童"],
+    "price": 6.0,
+    "in_stock": true,
+    "attributes": {"sugar": "5g", "volume": "250ml"}
+  },
+  {
+    "sku_id": "DRINK008",
+    "name": "低糖柠檬茶",
+    "aliases": ["柠檬茶", "低糖柠檬茶"],
+    "category": "茶饮料",
+    "tags": ["低糖", "热销"],
+    "price": 5.5,
+    "in_stock": true,
+    "attributes": {"sugar": "4g", "volume": "500ml"}
+  },
+  {
+    "sku_id": "DRINK009",
+    "name": "元气森林 白桃味",
+    "aliases": ["元气森林", "白桃气泡水", "元气森林白桃"],
+    "category": "碳酸饮料",
+    "tags": ["低糖", "零卡", "热销"],
+    "price": 5.0,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "480ml"}
+  },
+  {
+    "sku_id": "DRINK010",
+    "name": "热巧克力",
+    "aliases": ["巧克力", "热可可"],
+    "category": "热饮",
+    "tags": ["适合儿童"],
+    "price": 20.0,
+    "in_stock": true,
+    "attributes": {"sugar": "12g", "volume": "350ml"}
+  },
+  {
+    "sku_id": "FOOD001",
+    "name": "可颂",
+    "aliases": ["牛角包", "croissant"],
+    "category": "烘焙",
+    "tags": ["热销", "早餐"],
+    "price": 12.0,
+    "in_stock": true,
+    "attributes": {"sugar": "6g"}
+  },
+  {
+    "sku_id": "FOOD002",
+    "name": "全麦三明治",
+    "aliases": ["三明治", "全麦三明治"],
+    "category": "烘焙",
+    "tags": ["低卡", "早餐", "热销"],
+    "price": 15.0,
+    "in_stock": true,
+    "attributes": {"sugar": "3g"}
+  },
+  {
+    "sku_id": "FOOD003",
+    "name": "贝果",
+    "aliases": ["bagel", "原味贝果"],
+    "category": "烘焙",
+    "tags": ["早餐"],
+    "price": 10.0,
+    "in_stock": true,
+    "attributes": {"sugar": "4g"}
+  },
+  {
+    "sku_id": "FOOD004",
+    "name": "蓝莓麦芬",
+    "aliases": ["麦芬", "蓝莓蛋糕", "马芬"],
+    "category": "烘焙",
+    "tags": ["适合儿童", "新品"],
+    "price": 14.0,
+    "in_stock": true,
+    "attributes": {"sugar": "15g"}
+  },
+  {
+    "sku_id": "DRINK011",
+    "name": "鲜榨橙汁",
+    "aliases": ["橙汁", "鲜榨橙"],
+    "category": "果汁",
+    "tags": ["适合儿童", "无添加"],
+    "price": 16.0,
+    "in_stock": true,
+    "attributes": {"sugar": "10g", "volume": "300ml"}
+  },
+  {
+    "sku_id": "DRINK012",
+    "name": "蜜桃乌龙茶",
+    "aliases": ["蜜桃茶", "乌龙茶"],
+    "category": "茶饮料",
+    "tags": ["低糖", "新品"],
+    "price": 6.0,
+    "in_stock": true,
+    "attributes": {"sugar": "5g", "volume": "500ml"}
+  },
+  {
+    "sku_id": "DRINK013",
+    "name": "热牛奶",
+    "aliases": ["热奶", "温牛奶"],
+    "category": "热饮",
+    "tags": ["适合儿童", "低糖"],
+    "price": 8.0,
+    "in_stock": true,
+    "attributes": {"sugar": "5g", "volume": "250ml"}
+  },
+  {
+    "sku_id": "DRINK014",
+    "name": "冷萃咖啡",
+    "aliases": ["冷萃", "冷泡咖啡"],
+    "category": "咖啡",
+    "tags": ["含咖啡因", "低卡", "新品"],
+    "price": 24.0,
+    "in_stock": true,
+    "attributes": {"sugar": "0g", "volume": "350ml"}
+  },
+  {
+    "sku_id": "FOOD005",
+    "name": "鸡肉卷",
+    "aliases": ["卷饼", "鸡肉卷饼"],
+    "category": "轻食",
+    "tags": ["低卡", "热销"],
+    "price": 18.0,
+    "in_stock": true,
+    "attributes": {"sugar": "2g"}
+  }
+]
