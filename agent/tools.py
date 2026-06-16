@@ -52,18 +52,57 @@ def _upsert_cart(cart: list[dict], sku_id: str, name: str, price: float, qty: in
     return cart
 
 
+def _set_pending(recs: list[dict], dialog_state: str = "confirming") -> dict:
+    return {
+        "last_recommendations": recs,
+        "pending_options": recs,
+        "dialog_state": dialog_state if recs else "idle",
+    }
+
+
+def _clear_pending() -> dict:
+    return {"pending_options": [], "dialog_state": "idle"}
+
+
+def _resolve_pending_index(pending: list[dict], index: int, selection: str) -> int | None:
+    if index >= 1 and index <= len(pending):
+        return index - 1
+
+    if not selection.strip():
+        return None
+
+    query = selection.strip().lower()
+    scored: list[tuple[int, int]] = []
+    for idx, item in enumerate(pending):
+        product = catalog.get_product_by_id(item["sku_id"])
+        if not product:
+            continue
+        haystack = " ".join([product.name, *product.aliases]).lower()
+        score = 0
+        if query in product.name.lower():
+            score += 5
+        if any(query in alias.lower() for alias in product.aliases):
+            score += 4
+        if query in haystack:
+            score += 2
+        if score > 0:
+            scored.append((score, idx))
+
+    if not scored:
+        return None
+    scored.sort(key=lambda item: -item[0])
+    return scored[0][1]
+
+
 @tool
 def search_products(query: str, category: str = "", limit: int = 5, runtime: ToolRuntime = None) -> Command:
     """按关键词搜索商品，可选按品类过滤。适合处理具体商品名或模糊描述。"""
     products = catalog.search_products(query, category=category or None, limit=limit)
     recs = [_product_to_dict(product) for product in products]
     content = _format_products(products)
-    return Command(
-        update={
-            "last_recommendations": recs,
-            "messages": [ToolMessage(content=content, tool_call_id=runtime.tool_call_id)],
-        }
-    )
+    update = _set_pending(recs) if recs else {"dialog_state": "idle"}
+    update["messages"] = [ToolMessage(content=content, tool_call_id=runtime.tool_call_id)]
+    return Command(update=update)
 
 
 @tool
@@ -72,12 +111,9 @@ def filter_by_tags(tags: list[str], limit: int = 5, runtime: ToolRuntime = None)
     products = catalog.filter_by_tags(tags, limit=limit)
     recs = [_product_to_dict(product) for product in products]
     content = _format_products(products)
-    return Command(
-        update={
-            "last_recommendations": recs,
-            "messages": [ToolMessage(content=content, tool_call_id=runtime.tool_call_id)],
-        }
-    )
+    update = _set_pending(recs) if recs else {"dialog_state": "idle"}
+    update["messages"] = [ToolMessage(content=content, tool_call_id=runtime.tool_call_id)]
+    return Command(update=update)
 
 
 @tool
@@ -109,32 +145,93 @@ def get_cart_snapshot(runtime: ToolRuntime) -> str:
 
 
 @tool
-def add_recommendation_by_index(index: int, qty: int = 1, runtime: ToolRuntime = None) -> Command:
-    """从上一轮推荐列表中按序号加购。index=1 表示第一个，index=2 表示第二个。"""
-    recs = runtime.state.get("last_recommendations", [])
-    if not recs:
-        return Command(
-            update={
-                "messages": [
-                    ToolMessage(content="当前没有可选择的推荐商品，请先让我为您推荐。", tool_call_id=runtime.tool_call_id)
-                ]
-            }
-        )
-    if index < 1 or index > len(recs):
+def get_pending_options(runtime: ToolRuntime) -> str:
+    """查看当前待用户确认的商品列表。"""
+    pending = runtime.state.get("pending_options", [])
+    if not pending:
+        return "当前没有待确认商品。"
+    lines = []
+    for idx, item in enumerate(pending, start=1):
+        lines.append(f"{idx}. [{item['sku_id']}] {item['name']} ¥{item['price']}")
+    return "\n".join(lines)
+
+
+@tool
+def confirm_pending_option(
+    index: int = 0,
+    selection: str = "",
+    qty: int = 1,
+    runtime: ToolRuntime = None,
+) -> Command:
+    """从 pending_options 中确认加购。支持序号 index 或模糊名称 selection（如“拿铁”“奶铁”）。"""
+    pending = runtime.state.get("pending_options", [])
+    if not pending:
+        fallback = runtime.state.get("last_recommendations", [])
+        if fallback:
+            pending = fallback
+        else:
+            return Command(
+                update={
+                    "messages": [
+                        ToolMessage(
+                            content="当前没有待确认商品，请先搜索或让我推荐。",
+                            tool_call_id=runtime.tool_call_id,
+                        )
+                    ]
+                }
+            )
+
+    resolved = _resolve_pending_index(pending, index, selection)
+    if resolved is None:
         return Command(
             update={
                 "messages": [
                     ToolMessage(
-                        content=f"序号无效，请输入 1 到 {len(recs)} 之间的数字。",
+                        content="无法从待确认列表中匹配该商品，请说第几个或更明确的名称。",
                         tool_call_id=runtime.tool_call_id,
                     )
                 ]
             }
         )
 
-    selected = recs[index - 1]
-    return propose_cart_action.invoke(
-        {"op": "add", "sku_id": selected["sku_id"], "qty": qty, "runtime": runtime}
+    selected = pending[resolved]
+    product = catalog.get_product_by_id(selected["sku_id"])
+    if not product:
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(content=f"商品不存在: {selected['sku_id']}", tool_call_id=runtime.tool_call_id)
+                ]
+            }
+        )
+
+    cart = _upsert_cart(
+        runtime.state.get("cart", []),
+        product.sku_id,
+        product.name,
+        product.price,
+        qty,
+        "add",
+    )
+    return Command(
+        update={
+            "cart": cart,
+            **_clear_pending(),
+            "messages": [
+                ToolMessage(
+                    content=f"已提案加入 {product.name} x{qty}",
+                    tool_call_id=runtime.tool_call_id,
+                )
+            ],
+        }
+    )
+
+
+@tool
+def add_recommendation_by_index(index: int, qty: int = 1, runtime: ToolRuntime = None) -> Command:
+    """从待确认/推荐列表中按序号加购。index=1 表示第一个，index=2 表示第二个。"""
+    return confirm_pending_option.invoke(
+        {"index": index, "selection": "", "qty": qty, "runtime": runtime}
     )
 
 
@@ -189,12 +286,13 @@ def propose_cart_action(
     else:
         action_text = f"已提案将 {product.name} 数量改为 {qty}"
 
-    return Command(
-        update={
-            "cart": cart,
-            "messages": [ToolMessage(content=action_text, tool_call_id=runtime.tool_call_id)],
-        }
-    )
+    update = {
+        "cart": cart,
+        "messages": [ToolMessage(content=action_text, tool_call_id=runtime.tool_call_id)],
+    }
+    if op == "add":
+        update.update(_clear_pending())
+    return Command(update=update)
 
 
 ALL_TOOLS = [
@@ -202,6 +300,8 @@ ALL_TOOLS = [
     filter_by_tags,
     get_product_info,
     get_cart_snapshot,
+    get_pending_options,
+    confirm_pending_option,
     add_recommendation_by_index,
     propose_cart_action,
 ]
